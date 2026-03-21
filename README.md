@@ -1,36 +1,36 @@
-# 📺 Faker-TV
+# Faker-TV
 
-> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS) & Xiaomi TV (Android TV).  
+> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS) & Xiaomi TV (Android TV).
 > Tidak perlu instal aplikasi — cukup scan QR Code, dan smartphone langsung jadi remote!
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
 | Fitur | Deskripsi |
 |-------|-----------|
-| 📱 **Zero-Install UX** | Scan QR Code dari terminal → remote langsung aktif di browser HP |
-| 🔁 **Multi-Brand** | Mendukung Samsung (Tizen) dan Xiaomi (Android TV) dalam satu aplikasi |
-| ⚡ **Low-Latency** | Komunikasi via Socket.IO, respon < 50ms seperti remote fisik |
-| 💤 **Wake-on-LAN** | Hidupkan TV dari mode standby menggunakan Magic Packet |
-| 📳 **Haptic Feedback** | Getaran di HP saat tombol ditekan untuk pengalaman taktil |
-| 💾 **State Persistence** | Token pairing disimpan otomatis — tidak perlu pairing ulang |
-| 🎨 **Premium UI** | Antarmuka Glassmorphism & Neumorphic yang modern dan elegan |
+| **Zero-Install UX** | Scan QR Code dari terminal → remote langsung aktif di browser HP |
+| **Multi-Brand** | Mendukung Samsung (Tizen) dan Xiaomi (Android TV) dalam satu aplikasi |
+| **Low-Latency** | Komunikasi via Socket.IO, respon < 50ms seperti remote fisik |
+| **Wake-on-LAN** | Hidupkan TV dari mode standby menggunakan Magic Packet |
+| **Haptic Feedback** | Getaran di HP saat tombol ditekan untuk pengalaman taktil |
+| **State Persistence** | Token pairing disimpan otomatis — tidak perlu pairing ulang |
+| **Premium UI** | Antarmuka Glassmorphism & Neumorphic yang modern dan elegan |
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
-📱 Smartphone Browser (Client)
-         │
-         │  Socket.IO (Event-Driven, Full-Duplex)
-         ▼
-🖥️  Node.js Bridge Server
-         │
-         │  WebSocket (WSS/WS) — Port spesifik per brand
-         ▼
-📺 Samsung Smart TV (Tizen) / Xiaomi TV (Android TV)
+Smartphone Browser (Client)
+         |
+         |  Socket.IO (Event-Driven, Full-Duplex)
+         v
+Node.js Bridge Server
+         |
+         |  WebSocket (WSS/WS) — Port spesifik per brand
+         v
+Samsung Smart TV (Tizen) / Xiaomi TV (Android TV)
 ```
 
 **Mengapa butuh Bridge Server?**
@@ -39,7 +39,7 @@
 
 ---
 
-## 📋 Prasyarat
+## Prasyarat
 
 Pastikan hal-hal berikut sudah terpenuhi sebelum memulai:
 
@@ -50,7 +50,7 @@ Pastikan hal-hal berikut sudah terpenuhi sebelum memulai:
 
 ---
 
-## 🚀 Cara Pakai (Quick Start)
+## Cara Pakai (Quick Start)
 
 ### Langkah 1 — Clone Repositori
 
@@ -101,8 +101,8 @@ Buka file `server/tv-config.json` dan sesuaikan dengan data TV kamu:
 }
 ```
 
-> ⚠️ **Ganti `192.168.1.X`** dengan IP TV yang kamu temukan di Langkah 2.  
-> ⚠️ **MAC Address** diperlukan untuk fitur Wake-on-LAN. Jika tidak diisi, fitur WoL tidak aktif.
+> **Ganti `192.168.1.X`** dengan IP TV yang kamu temukan di Langkah 2.
+> **MAC Address** diperlukan untuk fitur Wake-on-LAN. Jika tidak diisi, fitur WoL tidak aktif.
 
 ---
 
@@ -119,10 +119,10 @@ node index.js
 Jika berhasil, kamu akan melihat output seperti ini:
 
 ```
-🚀 Bridge Server berjalan di port 3001
-📡 Menghubungkan ke TV Samsung di 192.168.1.X:8002...
-✅ Terhubung ke TV!
-📱 Scan QR Code berikut dengan HP:
+Bridge Server berjalan di port 3001
+Menghubungkan ke TV Samsung di 192.168.1.X:8002...
+Terhubung ke TV!
+Scan QR Code berikut dengan HP:
 ```
 
 ...diikuti dengan QR Code ASCII di terminal.
@@ -142,8 +142,8 @@ npm run dev -- --host
 Output akan menampilkan alamat seperti:
 
 ```
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: http://192.168.1.XX:5173/
+  Local:   http://localhost:5173/
+  Network: http://192.168.1.XX:5173/
 ```
 
 ---
@@ -164,7 +164,7 @@ Kamu punya **2 cara** untuk mulai mengontrol TV dari HP:
 
 ---
 
-## 📱 Cara Menggunakan Remote
+## Cara Menggunakan Remote
 
 Setelah halaman remote terbuka di HP:
 
@@ -180,22 +180,22 @@ Setelah halaman remote terbuka di HP:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### ❌ TV tidak terdeteksi / tidak bisa konek
+### TV tidak terdeteksi / tidak bisa konek
 
 - Pastikan TV dan komputer/server **berada di jaringan WiFi yang sama**
 - Cek ulang IP di `tv-config.json` — IP TV bisa berubah jika menggunakan DHCP
 - Coba matikan sementara **firewall** di komputer/server
 - Pastikan TV **menyala** (bukan mode standby)
 
-### ❌ Samsung: Terus dimintai izin pairing berulang kali
+### Samsung: Terus dimintai izin pairing berulang kali
 
 - Ini normal untuk koneksi pertama
 - Setelah izin diberikan, token tersimpan di `server/tv-token.txt`
 - Jika masalah berlanjut, hapus file `server/tv-token.txt` lalu restart server
 
-### ❌ Wake-on-LAN tidak berfungsi
+### Wake-on-LAN tidak berfungsi
 
 - Pastikan **MAC Address** di `tv-config.json` sudah benar
 - Aktifkan fitur WoL di pengaturan TV:
@@ -203,14 +203,14 @@ Setelah halaman remote terbuka di HP:
   - **Xiaomi**: Pengaturan → Preferensi Perangkat → Tetap Terhubung → ON
 - WoL bekerja lebih baik via **kabel LAN** dibanding WiFi pada beberapa model TV
 
-### ❌ QR Code tidak muncul di terminal
+### QR Code tidak muncul di terminal
 
 - Pastikan terminal kamu mendukung tampilan karakter UTF-8
 - Coba perkecil ukuran font terminal
 
 ---
 
-## 🗂️ Struktur Proyek
+## Struktur Proyek
 
 ```
 faker-tv/
@@ -224,7 +224,7 @@ faker-tv/
 │   ├── index.js            # Entry point server
 │   ├── samsung-adapter.js  # Handler WebSocket Samsung
 │   ├── xiaomi-adapter.js   # Handler WebSocket Xiaomi
-│   ├── tv-config.json      # ⚙️ Konfigurasi TV (edit file ini!)
+│   ├── tv-config.json      # Konfigurasi TV (edit file ini!)
 │   └── package.json
 │
 └── README.md
@@ -232,7 +232,7 @@ faker-tv/
 
 ---
 
-## 🎮 Referensi Key Codes (Xiaomi TV)
+## Referensi Key Codes (Xiaomi TV)
 
 | Tombol | Key Code |
 |--------|----------|
@@ -248,7 +248,7 @@ faker-tv/
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Teknologi |
 |-------|-----------|
@@ -259,10 +259,6 @@ faker-tv/
 
 ---
 
-<div align="center">
-
-Developed with ❤️ & Precision by **Fakhri Aditia Rahman**
+Developed with Precision by **Fakhri Aditia Rahman**
 
 *"This project is an independent development and is not affiliated with, authorized, or endorsed by Samsung Electronics, Xiaomi, or the Tizen Association."*
-
-</div>
