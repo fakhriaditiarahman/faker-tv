@@ -1,6 +1,6 @@
 # Faker-TV
 
-> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS) & Xiaomi TV (Android TV).
+> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS), Xiaomi TV (Android TV) & Infinix TV (Android TV).
 > Tidak perlu instal aplikasi — cukup scan QR Code, dan smartphone langsung jadi remote!
 
 ---
@@ -10,7 +10,7 @@
 | Fitur | Deskripsi |
 |-------|-----------|
 | **Zero-Install UX** | Scan QR Code dari terminal → remote langsung aktif di browser HP |
-| **Multi-Brand** | Mendukung Samsung (Tizen) dan Xiaomi (Android TV) dalam satu aplikasi |
+| **Multi-Brand** | Mendukung Samsung (Tizen), Xiaomi (Android TV), dan Infinix (Android TV) dalam satu aplikasi |
 | **Low-Latency** | Komunikasi via Socket.IO, respon < 50ms seperti remote fisik |
 | **Wake-on-LAN** | Hidupkan TV dari mode standby menggunakan Magic Packet |
 | **Haptic Feedback** | Getaran di HP saat tombol ditekan untuk pengalaman taktil |
@@ -30,7 +30,7 @@ Node.js Bridge Server
          |
          |  WebSocket (WSS/WS) — Port spesifik per brand
          v
-Samsung Smart TV (Tizen) / Xiaomi TV (Android TV)
+Samsung Smart TV (Tizen) / Xiaomi TV (Android TV) / Infinix TV (Android TV)
 ```
 
 **Mengapa butuh Bridge Server?**
@@ -101,6 +101,17 @@ Buka file `server/tv-config.json` dan sesuaikan dengan data TV kamu:
 }
 ```
 
+**Untuk Infinix TV:**
+```json
+{
+  "brand": "infinix",
+  "ip": "192.168.1.X",
+  "mac": "XX:XX:XX:XX:XX:XX",
+  "name": "Infinix TV ku",
+  "port": 6466
+}
+```
+
 > **Ganti `192.168.1.X`** dengan IP TV yang kamu temukan di Langkah 2.
 > **MAC Address** diperlukan untuk fitur Wake-on-LAN. Jika tidak diisi, fitur WoL tidak aktif.
 
@@ -120,7 +131,7 @@ Jika berhasil, kamu akan melihat output seperti ini:
 
 ```
 Bridge Server berjalan di port 3001
-Menghubungkan ke TV Samsung di 192.168.1.X:8002...
+Menghubungkan ke TV Samsung/Xiaomi/Infinix di 192.168.1.X...
 Terhubung ke TV!
 Scan QR Code berikut dengan HP:
 ```
@@ -224,6 +235,7 @@ faker-tv/
 │   ├── index.js            # Entry point server
 │   ├── samsung-adapter.js  # Handler WebSocket Samsung
 │   ├── xiaomi-adapter.js   # Handler WebSocket Xiaomi
+│   ├── infinix-adapter.js  # Handler WebSocket Infinix
 │   ├── tv-config.json      # Konfigurasi TV (edit file ini!)
 │   └── package.json
 │

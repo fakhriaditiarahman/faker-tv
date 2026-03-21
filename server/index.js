@@ -8,6 +8,7 @@ const path = require('path');
 
 const SamsungAdapter = require('./samsung-adapter');
 const XiaomiAdapter = require('./xiaomi-adapter');
+const InfinixAdapter = require('./infinix-adapter');
 
 const app = express();
 const server = http.createServer(app);
@@ -42,15 +43,18 @@ function saveTvConfig(config) {
 
 function initAdapter(config) {
     const brand = config.brand || 'samsung';
-    
+
     if (brand === 'xiaomi') {
         tvAdapter = new XiaomiAdapter(io);
         currentBrand = 'xiaomi';
+    } else if (brand === 'infinix') {
+        tvAdapter = new InfinixAdapter(io);
+        currentBrand = 'infinix';
     } else {
         tvAdapter = new SamsungAdapter(io);
         currentBrand = 'samsung';
     }
-    
+
     tvAdapter.setConfig(config);
     console.log(`Initialized ${brand.toUpperCase()} adapter`);
     return tvAdapter;
@@ -58,7 +62,7 @@ function initAdapter(config) {
 
 // --- Auto Discovery ---
 async function scanForTv() {
-    console.log('\n🔍 Memulai pelacakan TV (Samsung & Xiaomi) di jaringan...');
+    console.log('\n🔍 Memulai pelacakan TV (Samsung, Xiaomi & Infinix) di jaringan...');
     io.emit('tv-status', 'Sedang melacak TV di jaringan...');
 
     const ip = await internalIpV4();
@@ -90,7 +94,7 @@ async function scanForTv() {
                         } else {
                             resolve(null);
                         }
-                    } catch(e) { resolve(null); }
+                    } catch (e) { resolve(null); }
                 });
             });
             req.on('error', () => resolve(null));
@@ -119,7 +123,36 @@ async function scanForTv() {
                         } else {
                             resolve(null);
                         }
-                    } catch(e) { resolve(null); }
+                    } catch (e) { resolve(null); }
+                });
+            });
+            req.on('error', () => resolve(null));
+            req.on('timeout', () => { req.destroy(); resolve(null); });
+        });
+        promises.push(p);
+    }
+
+    // Scan for Infinix TV (port 6466)
+    for (let i = 1; i < 255; i++) {
+        const targetIp = `${baseIp}.${i}`;
+        const p = new Promise(resolve => {
+            const req = http.get(`http://${targetIp}:6466/`, { timeout: 2000 }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const info = JSON.parse(data);
+                        if (info && (info.brand === 'Infinix' || info.device_type || info.model)) {
+                            resolve({
+                                ip: targetIp,
+                                mac: info.mac || null,
+                                name: info.name || 'Infinix TV',
+                                brand: 'infinix'
+                            });
+                        } else {
+                            resolve(null);
+                        }
+                    } catch (e) { resolve(null); }
                 });
             });
             req.on('error', () => resolve(null));
@@ -133,11 +166,11 @@ async function scanForTv() {
 
     if (tvs.length > 0) {
         const foundTv = tvs[0];
-        console.log(`✅ TV Ditemukan: ${foundTv.name} di ${foundTv.ip} (MAC: ${foundTv.mac}) - Brand: ${foundTv.brand.toUpperCase()}`);
+        console.log(`TV Ditemukan: ${foundTv.name} di ${foundTv.ip} (MAC: ${foundTv.mac}) - Brand: ${foundTv.brand.toUpperCase()}`);
         saveTvConfig(foundTv);
         return foundTv;
     } else {
-        console.log('❌ Tidak ada TV Samsung atau Xiaomi yang ditemukan.');
+        console.log('Tidak ada TV Samsung, Xiaomi, atau Infinix yang ditemukan.');
         return null;
     }
 }
@@ -145,7 +178,7 @@ async function scanForTv() {
 // --- TV Connection ---
 function connectToTv(config = null) {
     const tvConfig = config || loadTvConfig();
-    
+
     if (!tvConfig || !tvConfig.ip) {
         console.log('IP TV belum diset.');
         return;
@@ -157,6 +190,8 @@ function connectToTv(config = null) {
     // Connect using the adapter
     if (tvConfig.brand === 'xiaomi') {
         tvAdapter.connect(64738);
+    } else if (tvConfig.brand === 'infinix') {
+        tvAdapter.connect(6466);
     } else {
         tvAdapter.connect(8002);
     }
@@ -206,7 +241,7 @@ io.on('connection', (socket) => {
 
     const adapter = tvAdapter;
     const config = loadTvConfig();
-    
+
     if (config) {
         if (adapter && adapter.isConnected()) {
             socket.emit('tv-status', `Terhubung ke ${config.name} (${config.brand.toUpperCase()})`);

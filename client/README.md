@@ -1,6 +1,6 @@
 # Faker-TV Client
 
-Remote control web client untuk Faker-TV - aplikasi remote control berbasis web untuk Samsung dan Xiaomi TV.
+Remote control web client untuk Faker-TV - aplikasi remote control berbasis web untuk Samsung, Xiaomi, dan Infinix TV.
 
 ## Fitur
 
