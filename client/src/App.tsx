@@ -89,7 +89,7 @@ const RemoteApp: React.FC = () => {
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const oldValue = textInput;
-    
+
     if (inputMode === 'instant') {
       if (newValue.length > oldValue.length) {
         // Huruf baru ditambahkan
@@ -102,7 +102,7 @@ const RemoteApp: React.FC = () => {
         socket.emit('send-key', 'KEY_BACKSPACE');
       }
     }
-    
+
     setTextInput(newValue);
   }, [textInput, inputMode]);
 
@@ -133,20 +133,20 @@ const RemoteApp: React.FC = () => {
       const touch = e.touches[0];
       const dx = (touch.clientX - lastTouchRef.current.x) * 2.5; // Slightly faster pointer
       const dy = (touch.clientY - lastTouchRef.current.y) * 2.5;
-      
+
       if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
         movedRef.current = true;
         socket.emit('mouse-move', { dx, dy });
       }
       lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
-      
+
     } else if (e.touches.length === 2) {
       // Two fingers: Scroll Page (Using CHUP/CHDOWN for browser scrolling)
       const touch = e.touches[0];
       const dy = touch.clientY - lastTouchRef.current.y;
-      
+
       // Threshold to trigger page up/down to prevent spamming
-      if (Math.abs(dy) > 35) { 
+      if (Math.abs(dy) > 35) {
         if (dy > 0) {
           socket.emit('send-key', 'KEY_CHDOWN'); // Swipe down -> Page Down
         } else {
@@ -363,7 +363,7 @@ const RemoteApp: React.FC = () => {
 
         {/* Footer */}
         <div className="remote-footer">
-          Boss Alif Remote
+          faker-tv
         </div>
       </motion.div>
 
@@ -425,15 +425,15 @@ const RemoteApp: React.FC = () => {
               <div className="keyboard-header">
                 <span className="keyboard-label">Ketik untuk TV ⌨️</span>
                 <div className="keyboard-mode-toggle">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`mode-btn ${inputMode === 'instant' ? 'active' : ''}`}
                     onClick={() => setInputMode('instant')}
                   >
                     YouTube
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`mode-btn ${inputMode === 'bulk' ? 'active' : ''}`}
                     onClick={() => setInputMode('bulk')}
                   >
@@ -442,8 +442,8 @@ const RemoteApp: React.FC = () => {
                 </div>
               </div>
               <p className="keyboard-hint">
-                {inputMode === 'instant' 
-                  ? 'Setiap huruf langsung terkirim ke TV' 
+                {inputMode === 'instant'
+                  ? 'Setiap huruf langsung terkirim ke TV'
                   : 'Ketik semua lalu tekan Kirim'}
               </p>
               <input
@@ -462,8 +462,8 @@ const RemoteApp: React.FC = () => {
                 </button>
               )}
               {inputMode === 'instant' && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="keyboard-send-btn"
                   onClick={() => { setTextInput(''); setShowKeyboard(false); }}
                 >

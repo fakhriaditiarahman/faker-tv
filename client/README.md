@@ -22,7 +22,6 @@ Remote control web client untuk Faker-TV - aplikasi remote control berbasis web 
 | Vite | 8 | Build Tool & Dev Server |
 | TailwindCSS | 4 | Styling |
 | Framer Motion | 12 | Animations |
-| Lucide React | Latest | Icons |
 | Socket.IO Client | 4 | Real-time Communication |
 
 ## Installation
@@ -153,16 +152,6 @@ const serverUrl = `http://${window.location.hostname}:3001`;
 ```
 
 Untuk production, sesuaikan dengan IP/URL server Anda.
-
-## Testing
-
-```bash
-# Run linting
-npm run lint
-
-# Build dan verify
-npm run build
-```
 
 ## License
 

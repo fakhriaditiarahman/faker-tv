@@ -13,7 +13,6 @@
 - **Haptic Feedback Engine**: Memberikan sensasi taktil (getaran) saat tombol ditekan menggunakan browser Haptic API
 - **State Persistence**: Otomatis menyimpan dan menggunakan kembali pairing token untuk koneksi instan di masa mendatang
 - **Premium Neumorphic UI**: Antarmuka modern dengan gaya Glassmorphism dan Neumorphism yang elegan
-- **Unit Testing**: Dilengkapi dengan 60+ test cases menggunakan Jest untuk memastikan kualitas dan stabilitas kode
 
 ---
 
@@ -72,7 +71,6 @@ Setiap brand TV menggunakan protokol dan port yang berbeda.
 | Frontend | React 19, TypeScript, Vite, TailwindCSS, Lucide Icons, Framer Motion |
 | Backend | Node.js, Express, Socket.IO, WebSocket (ws) |
 | Networking | Wake-on-LAN (UDP), QR-Code Terminal Generator |
-| Testing | Jest (60+ test cases) |
 | Styling | Neumorphic Design, Glassmorphism Effects |
 
 ---
@@ -123,11 +121,6 @@ cd server && npm install && node index.js
 **Terminal 2 (Web Client):**
 ```bash
 cd client && npm install && npm run dev -- --host
-```
-
-### 4. Run Tests (Optional)
-```bash
-cd server && npm test
 ```
 
 ---
@@ -184,30 +177,6 @@ cd server && npm test
 
 ---
 
-## Testing
-
-Proyek ini dilengkapi dengan unit testing dan integration testing menggunakan Jest:
-
-```bash
-# Run semua test
-cd server && npm test
-
-# Run test dengan watch mode
-npm run test:watch
-
-# Run test dengan coverage report
-npm test -- --coverage
-```
-
-### Test Coverage
-- **Samsung Adapter**: 17 test cases
-- **Xiaomi Adapter**: 28 test cases
-- **Integration Tests**: 15 test cases
-- **Total**: 60 test cases (all passing)
-
----
-
 Developed with Precision & Determination by Faker
 
 "This project is an independent development and is not affiliated with, authorized, or endorsed by Samsung Electronics, Xiaomi, or the Tizen Association."
-# faker-tv
