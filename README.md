@@ -1,182 +1,268 @@
-# Faker-TV: High-Performance Web-Based Samsung & Xiaomi TV Remote
+# 📺 Faker-TV
 
-**Faker-TV** adalah solusi remote control berbasis web yang dirancang untuk Samsung Smart TV (Tizen OS) dan Xiaomi TV (Android TV/PatchWall). Proyek ini mengeliminasi hambatan instalasi aplikasi tradisional dengan memanfaatkan QR-based pairing dan Bridge Server Architecture untuk komunikasi low-latency melalui protokol WebSocket.
-
----
-
-## Fitur Utama
-
-- **Multi-Brand Support**: Mendukung Samsung TV (Tizen) dan Xiaomi TV (Android TV)
-- **Zero-Install UX**: Cukup scan QR code dari terminal server, dan remote langsung aktif di browser smartphone tanpa perlu mengunduh aplikasi
-- **Full Control Suite**: Navigasi D-Pad, Volume Control, Channel Switching, Home, Return, hingga App Shortcuts (Netflix/YouTube)
-- **Wake-on-LAN (WoL)**: Menghidupkan TV dari mode standby menggunakan Magic Packet melalui alamat MAC TV
-- **Haptic Feedback Engine**: Memberikan sensasi taktil (getaran) saat tombol ditekan menggunakan browser Haptic API
-- **State Persistence**: Otomatis menyimpan dan menggunakan kembali pairing token untuk koneksi instan di masa mendatang
-- **Premium Neumorphic UI**: Antarmuka modern dengan gaya Glassmorphism dan Neumorphism yang elegan
+> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS) & Xiaomi TV (Android TV).  
+> Tidak perlu instal aplikasi — cukup scan QR Code, dan smartphone langsung jadi remote!
 
 ---
 
-## System Architecture
+## ✨ Fitur Utama
 
-Salah satu aspek teknis paling krusial dalam proyek ini adalah penggunaan Node.js Bridge Server. Arsitektur ini dipilih untuk mengatasi batasan keamanan pada browser modern (CORS & Mixed Content).
+| Fitur | Deskripsi |
+|-------|-----------|
+| 📱 **Zero-Install UX** | Scan QR Code dari terminal → remote langsung aktif di browser HP |
+| 🔁 **Multi-Brand** | Mendukung Samsung (Tizen) dan Xiaomi (Android TV) dalam satu aplikasi |
+| ⚡ **Low-Latency** | Komunikasi via Socket.IO, respon < 50ms seperti remote fisik |
+| 💤 **Wake-on-LAN** | Hidupkan TV dari mode standby menggunakan Magic Packet |
+| 📳 **Haptic Feedback** | Getaran di HP saat tombol ditekan untuk pengalaman taktil |
+| 💾 **State Persistence** | Token pairing disimpan otomatis — tidak perlu pairing ulang |
+| 🎨 **Premium UI** | Antarmuka Glassmorphism & Neumorphic yang modern dan elegan |
+
+---
+
+## 🏗️ System Architecture
 
 ```
-Smartphone Browser (Client)
-       |
-       | [Socket.IO / Event-Driven]
-       v
-Node.js Bridge Server (The Bridge)
-       |
-       | [WebSocket (WSS/WS) / Brand-Specific Ports]
-       v
-Samsung Smart TV (Tizen OS) / Xiaomi TV (Android TV)
+📱 Smartphone Browser (Client)
+         │
+         │  Socket.IO (Event-Driven, Full-Duplex)
+         ▼
+🖥️  Node.js Bridge Server
+         │
+         │  WebSocket (WSS/WS) — Port spesifik per brand
+         ▼
+📺 Samsung Smart TV (Tizen) / Xiaomi TV (Android TV)
 ```
 
-### Mengapa Arsitektur Bridge?
-
-1. **Bypassing SSL/CORS**: Browser smartphone melarang koneksi WebSocket langsung ke IP lokal TV yang menggunakan sertifikat self-signed. Bridge server menangani jabat tangan SSL secara server-side.
-2. **Persistent Identification**: Server menggunakan FIXED_ID permanen agar TV mengenali perangkat sebagai remote yang sama, mencegah munculnya notifikasi pairing berulang kali.
-3. **Network Discovery & WoL**: Memungkinkan server untuk mengirimkan paket UDP (WoL) yang tidak diizinkan langsung dari browser web smartphone.
-4. **Multi-Brand Adapter**: Server menggunakan pattern adapter untuk mendukung berbagai protokol TV (Samsung vs Xiaomi) dengan interface yang sama.
+**Mengapa butuh Bridge Server?**
+- Browser **tidak bisa** langsung konek ke TV karena CORS & SSL self-signed TV
+- Bridge Server menangani handshake SSL, token pairing, dan WoL UDP yang tidak diizinkan dari browser
 
 ---
 
-## Technical Challenges & Solutions
+## 📋 Prasyarat
 
-### 1. Bypassing SSL & Token Pairing (Samsung)
-Samsung Smart TV (2016+) menggunakan port 8002 (WSS) dengan protokol keamanan yang ketat.
-- **Solusi**: Implementasi manual WebSocket menggunakan library ws di Node.js dengan flag rejectUnauthorized: false. Server menangkap event ms.channel.connect, mengekstrak token otentikasi, dan menyimpannya secara lokal untuk sesi berikutnya.
+Pastikan hal-hal berikut sudah terpenuhi sebelum memulai:
 
-### 2. Wake-on-LAN Implementation
-Saat TV dalam mode standby, port LAN/Wi-Fi seringkali mati total, menyebabkan error EHOSTUNREACH.
-- **Solusi**: Integrasi library wake_on_lan untuk menembak Magic Packet ke MAC Address TV sesaat sebelum perintah KEY_POWER dikirimkan, memastikan TV "bangun" dan siap menerima koneksi WebSocket.
-
-### 3. Low-Latency Interaction
-Remote control membutuhkan respon instan agar terasa seperti remote fisik.
-- **Solusi**: Menggunakan Socket.IO untuk jalur komunikasi dua arah (full-duplex) antara smartphone dan server, memastikan perintah diteruskan ke TV dalam waktu kurang dari 50ms.
-
-### 4. Multi-Brand Protocol Support
-Setiap brand TV menggunakan protokol dan port yang berbeda.
-- **Samsung TV**: Port 8002 (WSS), WebSocket path /api/v2/channels/samsung.remote.control, token-based auth
-- **Xiaomi TV**: Port 64738 (WS), Android TV key codes, HTTP API backup
-
-- **Solusi**: Implementasi Adapter Pattern dengan interface unified untuk kedua brand, memungkinkan penambahan brand baru di masa depan dengan mudah.
+- **Node.js** v18 atau lebih baru → [Download](https://nodejs.org)
+- **npm** v9+ (sudah termasuk saat install Node.js)
+- **TV dan komputer/server dalam satu jaringan WiFi yang sama**
+- TV dalam keadaan **menyala** dan terhubung ke jaringan lokal
 
 ---
 
-## Tech Stack
+## 🚀 Cara Pakai (Quick Start)
 
-| Layer | Technology |
-| :--- | :--- |
-| Frontend | React 19, TypeScript, Vite, TailwindCSS, Lucide Icons, Framer Motion |
-| Backend | Node.js, Express, Socket.IO, WebSocket (ws) |
-| Networking | Wake-on-LAN (UDP), QR-Code Terminal Generator |
-| Styling | Neumorphic Design, Glassmorphism Effects |
+### Langkah 1 — Clone Repositori
 
----
-
-## Installation & Setup
-
-### 1. Clone & Install
 ```bash
-git clone https://github.com/MAliffadlan/Tizen-QR.git
-cd Faker-TV
+git clone https://github.com/fakhriaditiarahman/faker-tv.git
+cd faker-tv
 ```
 
-### 2. Configure TV Identity
+---
 
-#### For Samsung TV:
-Buka `server/tv-config.json` dan sesuaikan:
+### Langkah 2 — Cari IP & MAC Address TV
+
+Sebelum konfigurasi, kamu perlu tahu IP dan MAC Address TV kamu.
+
+**Cara mencari IP TV:**
+- **Samsung**: Menu → Pengaturan → Umum → Jaringan → Status Jaringan → Info IP
+- **Xiaomi**: Pengaturan → Wi-Fi → [Nama WiFi] → Detail Koneksi
+
+**Cara mencari MAC Address TV:**
+- **Samsung**: Menu → Pengaturan → Dukungan → Tentang TV → MAC Address
+- **Xiaomi**: Pengaturan → Tentang → Status → MAC Address (WLAN)
+
+---
+
+### Langkah 3 — Konfigurasi TV
+
+Buka file `server/tv-config.json` dan sesuaikan dengan data TV kamu:
+
+**Untuk Samsung TV:**
 ```json
 {
   "brand": "samsung",
-  "ip": "192.168.1.x",
-  "mac": "XX:XX:XX:XX:XX",
-  "name": "[TV] Samsung 7 Series",
+  "ip": "192.168.1.X",
+  "mac": "XX:XX:XX:XX:XX:XX",
+  "name": "TV Samsung ku",
   "port": 8002
 }
 ```
 
-#### For Xiaomi TV:
-Buka `server/tv-config.json` dan sesuaikan:
+**Untuk Xiaomi TV:**
 ```json
 {
   "brand": "xiaomi",
-  "ip": "192.168.1.x",
-  "mac": "XX:XX:XX:XX:XX",
-  "name": "Xiaomi TV",
+  "ip": "192.168.1.X",
+  "mac": "XX:XX:XX:XX:XX:XX",
+  "name": "Xiaomi TV ku",
   "port": 64738
 }
 ```
 
-> **Note**: MAC Address digunakan untuk fitur Wake-on-LAN. Jika tidak tersedia, fitur WoL tidak akan aktif.
+> ⚠️ **Ganti `192.168.1.X`** dengan IP TV yang kamu temukan di Langkah 2.  
+> ⚠️ **MAC Address** diperlukan untuk fitur Wake-on-LAN. Jika tidak diisi, fitur WoL tidak aktif.
 
-### 3. Run the Project
+---
 
-**Terminal 1 (Server Bridge):**
+### Langkah 4 — Jalankan Bridge Server
+
+Buka terminal baru (**Terminal 1**), jalankan server:
+
 ```bash
-cd server && npm install && node index.js
+cd server
+npm install
+node index.js
 ```
 
-**Terminal 2 (Web Client):**
+Jika berhasil, kamu akan melihat output seperti ini:
+
+```
+🚀 Bridge Server berjalan di port 3001
+📡 Menghubungkan ke TV Samsung di 192.168.1.X:8002...
+✅ Terhubung ke TV!
+📱 Scan QR Code berikut dengan HP:
+```
+
+...diikuti dengan QR Code ASCII di terminal.
+
+---
+
+### Langkah 5 — Jalankan Web Client
+
+Buka terminal baru lagi (**Terminal 2**), jalankan client:
+
 ```bash
-cd client && npm install && npm run dev -- --host
+cd client
+npm install
+npm run dev -- --host
+```
+
+Output akan menampilkan alamat seperti:
+
+```
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://192.168.1.XX:5173/
 ```
 
 ---
 
-## Supported TV Brands
+### Langkah 6 — Hubungkan HP ke Remote
 
-### Samsung (Tizen OS)
-- **Port**: 8002 (WSS), fallback ke 8001 (WS)
-- **Authentication**: Token-based (auto-saved)
-- **Key Features**: Full remote control, text input, mouse control
-- **WoL**: Supported
+Kamu punya **2 cara** untuk mulai mengontrol TV dari HP:
 
-### Xiaomi (Android TV / PatchWall)
-- **Port**: 64738 (WebSocket), 8081 (HTTP API)
-- **Authentication**: PIN pairing (model tertentu)
-- **Key Features**: Full remote control, text input, mouse control
-- **WoL**: Supported
-- **Key Codes**: Menggunakan Android TV standard key codes
+**Cara A — Scan QR Code dari Terminal Server**
+1. Lihat QR Code yang muncul di terminal server (Langkah 4)
+2. Buka kamera HP → scan QR Code tersebut
+3. Browser HP otomatis membuka halaman remote
 
----
-
-## Troubleshooting
-
-### TV Tidak Terdeteksi
-1. Pastikan TV dan server berada di jaringan WiFi yang sama
-2. Cek IP TV di pengaturan network TV
-3. Gunakan fitur "Force Scan" dari remote UI
-
-### Koneksi Terputus
-1. Restart server bridge
-2. Hapus file `tv-token.txt` (Samsung) untuk reset pairing
-3. Pastikan TV dalam keadaan ON
-
-### Wake-on-LAN Tidak Berfungsi
-1. Pastikan MAC Address benar di `tv-config.json`
-2. Aktifkan WoL di pengaturan TV
-3. Beberapa model TV memerlukan WoL via kabel LAN
+**Cara B — Buka URL Network Client dari HP**
+1. Pastikan HP terhubung ke WiFi yang sama
+2. Buka browser HP, masukkan URL `Network` dari terminal client (contoh: `http://192.168.1.XX:5173/`)
+3. Halaman remote akan terbuka di browser HP
 
 ---
 
-## Key Codes Reference (Xiaomi TV)
+## 📱 Cara Menggunakan Remote
 
-| Command | Key Code |
-|---------|----------|
+Setelah halaman remote terbuka di HP:
+
+1. **Pilih brand TV** (Samsung / Xiaomi) jika diminta
+2. Remote akan **terhubung otomatis** ke TV dalam beberapa detik
+3. **Untuk Samsung TV pertama kali**: Akan muncul notifikasi di layar TV meminta izin koneksi — pilih **Izinkan/Allow**
+4. Gunakan kontrol di layar HP untuk mengoperasikan TV:
+   - **D-Pad** (atas/bawah/kiri/kanan/OK) untuk navigasi
+   - **Volume** untuk mengatur suara
+   - **Power** untuk menyalakan/mematikan TV
+   - **Home** / **Back** untuk navigasi menu TV
+   - **Netflix / YouTube** untuk buka aplikasi langsung
+
+---
+
+## 🔧 Troubleshooting
+
+### ❌ TV tidak terdeteksi / tidak bisa konek
+
+- Pastikan TV dan komputer/server **berada di jaringan WiFi yang sama**
+- Cek ulang IP di `tv-config.json` — IP TV bisa berubah jika menggunakan DHCP
+- Coba matikan sementara **firewall** di komputer/server
+- Pastikan TV **menyala** (bukan mode standby)
+
+### ❌ Samsung: Terus dimintai izin pairing berulang kali
+
+- Ini normal untuk koneksi pertama
+- Setelah izin diberikan, token tersimpan di `server/tv-token.txt`
+- Jika masalah berlanjut, hapus file `server/tv-token.txt` lalu restart server
+
+### ❌ Wake-on-LAN tidak berfungsi
+
+- Pastikan **MAC Address** di `tv-config.json` sudah benar
+- Aktifkan fitur WoL di pengaturan TV:
+  - **Samsung**: Pengaturan → Umum → Pengaturan Sistem → Network Standby → ON
+  - **Xiaomi**: Pengaturan → Preferensi Perangkat → Tetap Terhubung → ON
+- WoL bekerja lebih baik via **kabel LAN** dibanding WiFi pada beberapa model TV
+
+### ❌ QR Code tidak muncul di terminal
+
+- Pastikan terminal kamu mendukung tampilan karakter UTF-8
+- Coba perkecil ukuran font terminal
+
+---
+
+## 🗂️ Struktur Proyek
+
+```
+faker-tv/
+├── client/                 # Web frontend (React + TypeScript + Vite)
+│   ├── src/
+│   │   ├── App.tsx         # Komponen utama remote UI
+│   │   └── ...
+│   └── package.json
+│
+├── server/                 # Bridge Server (Node.js)
+│   ├── index.js            # Entry point server
+│   ├── samsung-adapter.js  # Handler WebSocket Samsung
+│   ├── xiaomi-adapter.js   # Handler WebSocket Xiaomi
+│   ├── tv-config.json      # ⚙️ Konfigurasi TV (edit file ini!)
+│   └── package.json
+│
+└── README.md
+```
+
+---
+
+## 🎮 Referensi Key Codes (Xiaomi TV)
+
+| Tombol | Key Code |
+|--------|----------|
 | Power | 26 |
 | Home | 3 |
 | Back | 4 |
-| Up/Down/Left/Right | 19/20/21/22 |
-| OK | 23 |
-| Volume Up/Down | 24/25 |
+| Atas / Bawah / Kiri / Kanan | 19 / 20 / 21 / 22 |
+| OK / Enter | 23 |
+| Volume + / Volume - | 24 / 25 |
 | Mute | 164 |
-| Play/Pause | 126/127 |
-| Netflix/YouTube | 206/207 |
+| Play / Pause | 126 / 127 |
+| Netflix / YouTube | 206 / 207 |
 
 ---
 
-Developed with Precision & Determination by Faker
+## 🛠️ Tech Stack
 
-"This project is an independent development and is not affiliated with, authorized, or endorsed by Samsung Electronics, Xiaomi, or the Tizen Association."
+| Layer | Teknologi |
+|-------|-----------|
+| **Frontend** | React 19, TypeScript, Vite, TailwindCSS, Framer Motion, Lucide Icons |
+| **Backend** | Node.js, Express, Socket.IO, WebSocket (`ws`) |
+| **Networking** | Wake-on-LAN (UDP Magic Packet), QR Code Terminal Generator |
+| **Styling** | Neumorphic Design, Glassmorphism Effects |
+
+---
+
+<div align="center">
+
+Developed with ❤️ & Precision by **Fakhri Aditia Rahman**
+
+*"This project is an independent development and is not affiliated with, authorized, or endorsed by Samsung Electronics, Xiaomi, or the Tizen Association."*
+
+</div>
