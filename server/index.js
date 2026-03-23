@@ -306,7 +306,7 @@ async function startServer() {
     const localIp = await internalIpV4();
     console.log(`\nBridge: http://${localIp}:${PORT}`);
     qrcode.toString(`http://${localIp}:5173`, { type: 'terminal', small: true }, (err, url) => {
-        console.log('\nSCAN QR NYA BOS ALIF:\n');
+        console.log('\nSCAN QR NYA YA:\n');
         console.log(url);
     });
     server.listen(PORT, '0.0.0.0');
