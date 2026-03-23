@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node test-sony-adapter.js && node test-server-integration.js",
+    "test:sony": "node test-sony-adapter.js",
+    "test:integration": "node test-server-integration.js",
+    "test:all": "node test-infinix-adapter.js && node test-sony-adapter.js && node test-server-integration.js"
   },
   "keywords": [],
   "author": "",

@@ -9,6 +9,7 @@ const path = require('path');
 const SamsungAdapter = require('./samsung-adapter');
 const XiaomiAdapter = require('./xiaomi-adapter');
 const InfinixAdapter = require('./infinix-adapter');
+const SonyAdapter = require('./sony-adapter');
 
 const app = express();
 const server = http.createServer(app);
@@ -50,6 +51,9 @@ function initAdapter(config) {
     } else if (brand === 'infinix') {
         tvAdapter = new InfinixAdapter(io);
         currentBrand = 'infinix';
+    } else if (brand === 'sony') {
+        tvAdapter = new SonyAdapter(io);
+        currentBrand = 'sony';
     } else {
         tvAdapter = new SamsungAdapter(io);
         currentBrand = 'samsung';
@@ -62,7 +66,7 @@ function initAdapter(config) {
 
 // --- Auto Discovery ---
 async function scanForTv() {
-    console.log('\n🔍 Memulai pelacakan TV (Samsung, Xiaomi & Infinix) di jaringan...');
+    console.log('\n🔍 Memulai pelacakan TV (Samsung, Xiaomi, Infinix & Sony) di jaringan...');
     io.emit('tv-status', 'Sedang melacak TV di jaringan...');
 
     const ip = await internalIpV4();
@@ -161,6 +165,35 @@ async function scanForTv() {
         promises.push(p);
     }
 
+    // Scan for Sony Android TV (port 8081)
+    for (let i = 1; i < 255; i++) {
+        const targetIp = `${baseIp}.${i}`;
+        const p = new Promise(resolve => {
+            const req = http.get(`http://${targetIp}:8081/status`, { timeout: 2000 }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const info = JSON.parse(data);
+                        if (info && (info.brand === 'Sony' || info.device_type || info.model)) {
+                            resolve({
+                                ip: targetIp,
+                                mac: info.mac || null,
+                                name: info.name || 'Sony Android TV',
+                                brand: 'sony'
+                            });
+                        } else {
+                            resolve(null);
+                        }
+                    } catch (e) { resolve(null); }
+                });
+            });
+            req.on('error', () => resolve(null));
+            req.on('timeout', () => { req.destroy(); resolve(null); });
+        });
+        promises.push(p);
+    }
+
     const results = await Promise.all(promises);
     const tvs = results.filter(r => r !== null);
 
@@ -170,7 +203,7 @@ async function scanForTv() {
         saveTvConfig(foundTv);
         return foundTv;
     } else {
-        console.log('Tidak ada TV Samsung, Xiaomi, atau Infinix yang ditemukan.');
+        console.log('Tidak ada TV Samsung, Xiaomi, Infinix, atau Sony yang ditemukan.');
         return null;
     }
 }
@@ -192,6 +225,8 @@ function connectToTv(config = null) {
         tvAdapter.connect(64738);
     } else if (tvConfig.brand === 'infinix') {
         tvAdapter.connect(6466);
+    } else if (tvConfig.brand === 'sony') {
+        tvAdapter.connect(64738);
     } else {
         tvAdapter.connect(8002);
     }

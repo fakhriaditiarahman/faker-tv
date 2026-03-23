@@ -1,6 +1,6 @@
 # Faker-TV
 
-> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS), Xiaomi TV (Android TV) & Infinix TV (Android TV).
+> **Web-Based Remote Control** untuk Samsung Smart TV (Tizen OS), Xiaomi TV (Android TV), Infinix TV (Android TV) & Sony Android TV.
 > Tidak perlu instal aplikasi — cukup scan QR Code, dan smartphone langsung jadi remote!
 
 ---
@@ -10,7 +10,7 @@
 | Fitur | Deskripsi |
 |-------|-----------|
 | **Zero-Install UX** | Scan QR Code dari terminal → remote langsung aktif di browser HP |
-| **Multi-Brand** | Mendukung Samsung (Tizen), Xiaomi (Android TV), dan Infinix (Android TV) dalam satu aplikasi |
+| **Multi-Brand** | Mendukung Samsung (Tizen), Xiaomi (Android TV), Infinix (Android TV), dan Sony (Android TV) dalam satu aplikasi |
 | **Low-Latency** | Komunikasi via Socket.IO, respon < 50ms seperti remote fisik |
 | **Wake-on-LAN** | Hidupkan TV dari mode standby menggunakan Magic Packet |
 | **Haptic Feedback** | Getaran di HP saat tombol ditekan untuk pengalaman taktil |
@@ -30,7 +30,7 @@ Node.js Bridge Server
          |
          |  WebSocket (WSS/WS) — Port spesifik per brand
          v
-Samsung Smart TV (Tizen) / Xiaomi TV (Android TV) / Infinix TV (Android TV)
+Samsung Smart TV (Tizen) / Xiaomi TV (Android TV) / Infinix TV (Android TV) / Sony Android TV
 ```
 
 **Mengapa butuh Bridge Server?**
@@ -68,10 +68,12 @@ Sebelum konfigurasi, kamu perlu tahu IP dan MAC Address TV kamu.
 **Cara mencari IP TV:**
 - **Samsung**: Menu → Pengaturan → Umum → Jaringan → Status Jaringan → Info IP
 - **Xiaomi**: Pengaturan → Wi-Fi → [Nama WiFi] → Detail Koneksi
+- **Sony**: Pengaturan → Jaringan → Jaringan & Internet → Status Jaringan
 
 **Cara mencari MAC Address TV:**
 - **Samsung**: Menu → Pengaturan → Dukungan → Tentang TV → MAC Address
 - **Xiaomi**: Pengaturan → Tentang → Status → MAC Address (WLAN)
+- **Sony**: Pengaturan → Jaringan → Jaringan & Internet → Status Jaringan → Alamat MAC
 
 ---
 
@@ -112,6 +114,17 @@ Buka file `server/tv-config.json` dan sesuaikan dengan data TV kamu:
 }
 ```
 
+**Untuk Sony Android TV:**
+```json
+{
+  "brand": "sony",
+  "ip": "192.168.1.X",
+  "mac": "XX:XX:XX:XX:XX:XX",
+  "name": "Sony Android TV ku",
+  "port": 64738
+}
+```
+
 > **Ganti `192.168.1.X`** dengan IP TV yang kamu temukan di Langkah 2.
 > **MAC Address** diperlukan untuk fitur Wake-on-LAN. Jika tidak diisi, fitur WoL tidak aktif.
 
@@ -131,7 +144,7 @@ Jika berhasil, kamu akan melihat output seperti ini:
 
 ```
 Bridge Server berjalan di port 3001
-Menghubungkan ke TV Samsung/Xiaomi/Infinix di 192.168.1.X...
+Menghubungkan ke TV Samsung/Xiaomi/Infinix/Sony di 192.168.1.X...
 Terhubung ke TV!
 Scan QR Code berikut dengan HP:
 ```
@@ -179,7 +192,7 @@ Kamu punya **2 cara** untuk mulai mengontrol TV dari HP:
 
 Setelah halaman remote terbuka di HP:
 
-1. **Pilih brand TV** (Samsung / Xiaomi) jika diminta
+1. **Pilih brand TV** (Samsung / Xiaomi / Sony) jika diminta
 2. Remote akan **terhubung otomatis** ke TV dalam beberapa detik
 3. **Untuk Samsung TV pertama kali**: Akan muncul notifikasi di layar TV meminta izin koneksi — pilih **Izinkan/Allow**
 4. Gunakan kontrol di layar HP untuk mengoperasikan TV:
@@ -212,6 +225,7 @@ Setelah halaman remote terbuka di HP:
 - Aktifkan fitur WoL di pengaturan TV:
   - **Samsung**: Pengaturan → Umum → Pengaturan Sistem → Network Standby → ON
   - **Xiaomi**: Pengaturan → Preferensi Perangkat → Tetap Terhubung → ON
+  - **Sony**: Pengaturan → Jaringan → Jaringan & Internet → Wake on LAN → ON
 - WoL bekerja lebih baik via **kabel LAN** dibanding WiFi pada beberapa model TV
 
 ### QR Code tidak muncul di terminal
@@ -236,6 +250,7 @@ faker-tv/
 │   ├── samsung-adapter.js  # Handler WebSocket Samsung
 │   ├── xiaomi-adapter.js   # Handler WebSocket Xiaomi
 │   ├── infinix-adapter.js  # Handler WebSocket Infinix
+│   ├── sony-adapter.js     # Handler WebSocket Sony Android TV
 │   ├── tv-config.json      # Konfigurasi TV (edit file ini!)
 │   └── package.json
 │
@@ -244,7 +259,7 @@ faker-tv/
 
 ---
 
-## Referensi Key Codes (Xiaomi TV)
+## Referensi Key Codes (Android TV: Xiaomi, Infinix, Sony)
 
 | Tombol | Key Code |
 |--------|----------|
@@ -268,6 +283,7 @@ faker-tv/
 | **Backend** | Node.js, Express, Socket.IO, WebSocket (`ws`) |
 | **Networking** | Wake-on-LAN (UDP Magic Packet), QR Code Terminal Generator |
 | **Styling** | Neumorphic Design, Glassmorphism Effects |
+| **Supported TV** | Samsung (Tizen), Xiaomi (Android TV), Infinix (Android TV), Sony (Android TV) |
 
 ---
 
